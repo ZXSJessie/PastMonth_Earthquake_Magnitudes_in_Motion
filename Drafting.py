@@ -52,4 +52,5 @@ df = pd.read_csv("Salary_Data.csv")
 years = df["YearsExperience"].to_numpy()
 salary = df["Salary"].to_numpy()
 
-print(years, salary)
+earthQuake = pd.read_csv("all_month.csv")
+print(earthQuake)
