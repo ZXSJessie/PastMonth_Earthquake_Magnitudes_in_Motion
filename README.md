@@ -12,8 +12,10 @@ Long animation settings
 ___
 <video controls src="EarthQuakes_PastMonth_Animated_Long.mp4" title="Title"></video>
 In EarthQuakes_PastMonth_Animated_Areas.py
+
 Line 128:
 anim = FuncAnimation(fig, update, init_func=None, frames=len(smooth_frames), !!!interval=264!!!, blit=False)
+
 line 140:
 interval = 200  # milliseconds between frames
 fps = 1000 / interval  # frames per second
