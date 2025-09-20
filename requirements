@@ -1,5 +1,6 @@
 matplotlib
+mpl_toolkits.mplot3d
 pandas
 numpy
 scipy
-plotyly.graph_objects
+plotyly.graph_objectspip

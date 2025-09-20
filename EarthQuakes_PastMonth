@@ -1,0 +1,125 @@
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D # module that gives matplotlib the ability to do 3D. Axes3D is the class that creates a 3D axis system
+from matplotlib import cm # cm is colormap, a module that contains a set of predefined colormaps that can be used to map data values to colors in visualizations
+import matplotlib.gridspec as gridspec #helps lay out subplots with flexible row/column sizes different from each other
+import matplotlib as mpl
+from matplotlib import rc, rcParams # global style setting for plots
+import pandas as pd
+import numpy as np
+from scipy.interpolate import griddata, LinearNDInterpolator
+import plotly.graph_objects as go
+from scipy.ndimage import gaussian_filter
+from scipy.interpolate import RBFInterpolator
+
+
+
+
+"""
+Preparing the data
+"""
+df = pd.read_csv("all_month.csv")
+# read the csv file into a pandas dataframe
+
+x1 = np.linspace(df["latitude"].min(), df["latitude"].max(), 100)
+y1 = np.linspace(df["longitude"].min(), df["longitude"].max(), 100)
+# creaates evenly spaced values between the min and max of latitude and longitude, with the number of values equal to the number of unique values in each column
+
+x2, y2 = np.meshgrid(x1, y1)
+
+
+
+"""
+Create the figure and axes
+"""
+fig = plt.figure(000, figsize = (16, 12))
+# creating the overall canvas
+# 000 is an identifier for the figure, can be any number
+
+ax = fig.add_subplot(111, projection = "3d")
+# adding a 3D subplot to the figure
+# can also be written as, fig.add_subplot(nrows=2, ncols=2, index=1, projection='3d')
+# indexes for matplotlib is 1 based, not 0 based, as they follow the MATLAB convention
+
+
+
+"""
+Smoothing (to make up for not being able to use cubic interpolation with this piece of data)
+"""
+points = np.column_stack((df['latitude'], df['longitude']))
+values = df['mag'].values
+
+rbf = RBFInterpolator(points, values, kernel='gaussian', epsilon=2)
+z2_smooth = rbf(np.column_stack((x2.ravel(), y2.ravel()))).reshape(x2.shape)
+# smooth interpolation using RBFInterpolator
+
+z2 = griddata((df['latitude'], df['longitude']), df['mag'], (x2, y2), method = "linear") # Interpolate the magnitude data onto the grid (gives value, the magnitude, to the array shaped by x2 y2) using cubic interpolation
+
+z2_smooth = gaussian_filter(z2, sigma=1)
+
+
+
+"""
+Plot
+"""
+ax.plot_surface(x2, y2, z2_smooth, rstride=1, cstride=1, cmap = "viridis", edgecolor='none', antialiased=True)
+
+
+
+"""
+Smoothing (to make up for not being able to use cubic interpolation with this piece of data)
+"""
+z2_smooth = gaussian_filter(z2, sigma=1)
+
+
+
+"""
+Add filled contours
+"""
+# 2D contour footprint of the 3D heights/topography
+
+z2_filled = np.nan_to_num(z2, nan=df['mag'].mean())
+
+contour = ax.contourf(x2, y2, z2_smooth, zdir='z', offset=1, cmap=cm.viridis, antialiased=False)
+# extrapolated values to form a square base
+
+
+
+"""
+Stylize
+"""
+rcParams['legend.fontsize'] = 20
+
+rc('text', usetex=True) # use LaTeX to write all text in the figure
+rc('axes', linewidth=2) # set the axes linewidth to 2
+rc('font', weight='bold', size=14) # set the font to bold and size 14
+
+ax.set_title("Earthquakes in the Past Month", fontsize=24, pad=20, weight='bold')
+ax.set_xlabel("Latitude", fontsize=10, labelpad=20, weight='medium')
+ax.set_ylabel("Longitude", fontsize=10, labelpad=20, weight='medium')
+ax.set_zlabel("Magnitude", fontsize=10, labelpad=20, weight='medium')
+
+ax.set_xlim(df['latitude'].min()*0.7, df['latitude'].max()*0.7)
+ax.set_ylim(df['longitude'].min()*0.7, df['longitude'].max()*0.7)
+ax.set_zlim(0, df['mag'].max()*0.7)
+
+ax.view_init(elev=30, azim=-60)  # elev = vertical angle, azim = horizontal angle
+
+ax.set_box_aspect([1, 1, 1])
+
+
+
+"""
+Show
+"""
+# ax.scatter(df["latitude"], df["longitude"], df["mag"], c=df["mag"], cmap="viridis", marker='o')
+
+plt.show()
+fig.savefig("EarthQuakes_PastMonth_Areas_Meshgrid.png", dpi=300)
+
+"""
+Debug
+"""
+print("latitude is= ", df["latitude"])
+print("longitude is= ", df["longitude"])
+print(np.isnan(z2).sum(), "points are NaN out of", z2.size)
+

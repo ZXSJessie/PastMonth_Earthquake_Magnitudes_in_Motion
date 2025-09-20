@@ -48,9 +48,20 @@ plt.show()
 print("Done")
 """
 
+"""
 df = pd.read_csv("Salary_Data.csv")
 years = df["YearsExperience"].to_numpy()
 salary = df["Salary"].to_numpy()
 
 earthQuake = pd.read_csv("all_month.csv")
 print(earthQuake)
+"""
+
+"""
+a = np.array([2.5, 2, 3, 5, 4, 5])
+print(np.unique(np.sort(a)))
+"""
+
+df = pd.read_csv("all_month.csv")
+print("this is columns", df.columns)
+print("this is rows", df.index)
