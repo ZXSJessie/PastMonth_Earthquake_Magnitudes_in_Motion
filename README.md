@@ -4,7 +4,7 @@ CURRENT SUMMARY:
 TO BE IMPLEMENTED:
 - map on the bottom to display where in the world the earthquakes occur
 - faster animated video
-- 
+
 ___
 3D Earthquake Visualization
 
