@@ -11,6 +11,10 @@ import plotly.graph_objects as go
 from scipy.ndimage import gaussian_filter
 from scipy.interpolate import RBFInterpolator
 
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+from PIL import Image
+# map
 
 
 
@@ -31,7 +35,7 @@ x2, y2 = np.meshgrid(x1, y1)
 """
 Create the figure and axes
 """
-fig = plt.figure(000, figsize = (16, 12))
+fig = plt.figure(000, figsize = (12, 8))
 # creating the overall canvas
 # 000 is an identifier for the figure, can be any number
 
@@ -66,20 +70,13 @@ ax.plot_surface(x2, y2, z2_smooth, rstride=1, cstride=1, cmap = "viridis", edgec
 
 
 """
-Smoothing (to make up for not being able to use cubic interpolation with this piece of data)
-"""
-z2_smooth = gaussian_filter(z2, sigma=1)
-
-
-
-"""
 Add filled contours
 """
 # 2D contour footprint of the 3D heights/topography
 
 z2_filled = np.nan_to_num(z2, nan=df['mag'].mean())
 
-contour = ax.contourf(x2, y2, z2_smooth, zdir='z', offset=1, cmap=cm.viridis, antialiased=False)
+contour = ax.contourf(x2, y2, z2_smooth, zdir='z', offset=0, cmap=cm.viridis, antialiased=False)
 # extrapolated values to form a square base
 
 
@@ -98,13 +95,52 @@ ax.set_xlabel("Latitude", fontsize=10, labelpad=20, weight='medium')
 ax.set_ylabel("Longitude", fontsize=10, labelpad=20, weight='medium')
 ax.set_zlabel("Magnitude", fontsize=10, labelpad=20, weight='medium')
 
-ax.set_xlim(df['latitude'].min()*0.7, df['latitude'].max()*0.7)
-ax.set_ylim(df['longitude'].min()*0.7, df['longitude'].max()*0.7)
-ax.set_zlim(0, df['mag'].max()*0.7)
+ax.set_xlim(df['latitude'].min(), df['latitude'].max())
+ax.set_ylim(df['longitude'].min(), df['longitude'].max())
+ax.set_zlim(0, df['mag'].max() * 0.8)
 
-ax.view_init(elev=30, azim=-60)  # elev = vertical angle, azim = horizontal angle
+ax.view_init(elev=30, azim=60)  # elev = vertical angle, azim = horizontal angle
 
-ax.set_box_aspect([1, 1, 1])
+
+
+"""
+
+ax = fig.add_subplot(111, projection=ccrs.PlateCarree())
+# make a separate 2D map as the 'floor'
+
+ax.set_extent([df["longitude"].min()*0.7, df["longitude"].max()*0.7, df["latitude"].min()*0.7, df["latitude"].max()*0.7])
+# set an extent to the data's bounding box, zoomed in slightly
+
+ax.add_feature(cfeature.LAND, facecolor='lightgray')
+ax.add_feature(cfeature.OCEAN, facecolor='lightblue')
+ax.add_feature(cfeature.COASTLINE)
+ax.add_feature(cfeature.BORDERS, linestyle=':')
+
+Cartopy Map (2D) # 2D map, doesn't work
+"""
+
+
+
+"""
+Map
+"""
+
+img = plt.imread("World-Continents-Topographic-map-Lowres.png")
+
+img_small = img[::20, ::20]  # take every 20th pixel
+
+lon_min, lon_max = df["longitude"].min(), df["longitude"].max()
+lat_min, lat_max = df["latitude"].min(), df["latitude"].max()
+
+"""
+x_img = np.linspace(lon_min, lon_max, img_small.shape[1])
+y_img = np.linspace(lat_min, lat_max, img_small.shape[0])
+x_img, y_img = np.meshgrid(x_img, y_img)
+
+ax.plot_surface(x_img, y_img, np.ones_like(x_img) * -0.5, rstride=1, cstride=1, facecolors=img_small/255, shade=False)
+
+"""
+ax.set_box_aspect([abs(lat_max-lat_min), abs(lon_max-lon_min), 100])
 
 
 
@@ -116,10 +152,12 @@ Show
 plt.show()
 fig.savefig("EarthQuakes_PastMonth_Areas_Meshgrid.png", dpi=300)
 
+
+
 """
 Debug
 """
-print("latitude is= ", df["latitude"])
-print("longitude is= ", df["longitude"])
-print(np.isnan(z2).sum(), "points are NaN out of", z2.size)
+print("latitude is= ", df["latitude"].sort_values())
+print("longitude is= ", df["longitude"].sort_values())
+# print(np.isnan(z2).sum(), "points are NaN out of", z2.size)
 

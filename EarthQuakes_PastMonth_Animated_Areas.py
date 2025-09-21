@@ -38,7 +38,7 @@ x2, y2 = np.meshgrid(x1, y1)
 """
 Create the figure and axes
 """
-fig = plt.figure(000, figsize = (10, 6))
+fig = plt.figure(000, figsize = (14, 8))
 # creating the overall canvas
 # 000 is an identifier for the figure, can be any number
 
@@ -55,10 +55,14 @@ Animating
 z_days = []
 for current_day in unique_days:
     df_day = df[df['time_day'] == current_day]
-    # Create a boolean mask to filter data for the current frame based on time
+    # df[df['time_day'] == current_day]
+    # creates a new dataframe for each day in the unique days list (all rows where the 'time_day' column matches the current day in the loop)
 
     points = np.column_stack((df_day['latitude'], df_day['longitude']))
+    #combine the latitude and longitude columns into a tupled array
+
     values = df_day['mag'].values
+    # extract the magnitude values as a numpy array (df_day['mag'] also contain the index)
 
     if len(points) > 0:
         # to determine that it is safe (values exist) to do the interpolation
@@ -81,7 +85,7 @@ for i in range(len(z_days)-1):
     z_end = z_days[i+1]
 
     for alpha in np.linspace(0, 1, frames_per_day):
-        z_interp = z_start + (z_end - z_start) * alpha
+        z_interp = (z_end - z_start) * alpha + z_start
         smooth_frames.append((z_interp, unique_days[i]))
 smooth_frames.append((z_days[-1], unique_days[-1]))
 # ensure the last day is included
@@ -89,14 +93,14 @@ smooth_frames.append((z_days[-1], unique_days[-1]))
 
 
 def update(frame):
-        z_interp, day= smooth_frames[frame]
+        z_interp, day = smooth_frames[frame]
 
         for coll in ax.collections[:]:
             coll.remove()
         # clear previous surfaces
 
-        ax.plot_surface(x2, y2, z_interp, cmap = "viridis", edgecolor='none', antialiased=True)
-        ax.contourf(x2, y2, z_interp, zdir='z', offset=0, cmap=cm.viridis, antialiased=True)
+        ax.plot_surface(x2, y2, z_interp, cmap = "plasma", edgecolor='none', antialiased=True)
+        ax.contourf(x2, y2, z_interp, zdir='z', offset=0, cmap=cm.plasma, antialiased=True)
 
         ax.set_title(f"Earthquakes by Magnitude on {day.date()}", fontsize=20, pad=20, weight='medium', y=1.02)
     
@@ -111,17 +115,37 @@ rc('axes', linewidth=2) # set the axes linewidth to 2
 rc('font', weight='bold', size=14) # set the font to bold and size 14
 
 fig.suptitle("Earthquakes in the Past Month, Animated", fontsize=24, weight='bold')
+
 ax.set_xlabel("Latitude", fontsize=10, labelpad=20, weight='medium')
-ax.set_ylabel("Longitude", fontsize=10, labelpad=20, weight='medium')
-ax.set_zlabel("Magnitude", fontsize=10, labelpad=20, weight='medium')
+ax.set_ylabel("Longitude", fontsize=10, labelpad=10, weight='medium')
+ax.set_zlabel("Magnitude", fontsize=10, labelpad=10, weight='medium')
 
-ax.set_xlim(df['latitude'].min()*0.7, df['latitude'].max()*0.7)
-ax.set_ylim(df['longitude'].min()*0.7, df['longitude'].max()*0.7)
-ax.set_zlim(0, df['mag'].max()*0.7)
+ax.set_xlim(df['latitude'].min(), df['latitude'].max())
+ax.set_ylim(df['longitude'].min(), df['longitude'].max())
+ax.set_zlim(0, df['mag'].max()*0.8)
+# zoom in a bit on the data
 
-ax.view_init(elev=30, azim=-60)  # elev = vertical angle, azim = horizontal angle
+ax.view_init(elev=30, azim=60)  # elev = vertical angle, azim(uth) = horizontal angle
 
-ax.set_box_aspect([1, 1, 1])
+
+
+"""
+Map
+"""
+img = plt.imread("World-Continents-Topographic-map-Lowres.png")
+
+img_small = img[::20, ::20]  # take every 20th pixel
+
+lon_min, lon_max = df["longitude"].min(), df["longitude"].max()
+lat_min, lat_max = df["latitude"].min(), df["latitude"].max()
+
+x_img = np.linspace(lon_min, lon_max, img_small.shape[1])
+y_img = np.linspace(lat_min, lat_max, img_small.shape[0])
+x_img, y_img = np.meshgrid(x_img, y_img)
+
+ax.plot_surface(x_img, y_img, np.ones_like(x_img) * -0.5, rstride=1, cstride=1, facecolors=img_small/255, shade=False)
+
+ax.set_box_aspect([abs(lat_max-lat_min), abs(lon_max-lon_min), 100])
 
 
 
@@ -139,4 +163,13 @@ interval = 200  # milliseconds between frames
 fps = 1000 / interval  # frames per second
 anim.save("EarthQuakes_PastMonth_Animated.mp4", writer="ffmpeg", fps=fps, dpi=300)
 
-print(smooth_frames)
+
+
+"""
+Debug
+"""
+print("smooth_frames= ", smooth_frames)
+
+print("df_day= ", df_day)
+print("values= ", values)
+print("df_day['mag']= ", df_day['mag'])
