@@ -1,9 +1,10 @@
+CURRENT SUMMARY:
 3D meshgrid displaying the location (latitude, longitude) and intensity of earthquakes across the world in the past month, between the dates 8-19-2025 and 9-18-2025.
 
 TO BE IMPLEMENTED:
 - map on the bottom to display where in the world the earthquakes occur
 - faster animated video
-
+- 
 ___
 3D Earthquake Visualization
 
@@ -40,15 +41,6 @@ requirements.txt ___ Python packages required to run the scripts.
 README.md ___ This file.
 
 ___
-Installation
-
-Clone this repository:
-git clone https://github.com/ZXSJessie/Animated_3D_Visualization.git
-cd Animated_3D_Visualization
-
-Install required packages:
-pip install -r requirements.txt
-
 Dependencies:
 matplotlib
 numpy
@@ -56,5 +48,3 @@ pandas
 scipy
 cartopy
 PIL (Pillow)
-
-anim.save("EarthQuakes_PastMonth_Animated.mp4", writer="ffmpeg", !!!fps=fps!!!, dpi=300)
