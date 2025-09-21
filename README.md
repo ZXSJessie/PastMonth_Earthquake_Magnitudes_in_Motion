@@ -42,9 +42,9 @@ README.md ___ This file.
 
 ___
 Dependencies:
-matplotlib
-numpy
-pandas
-scipy
-cartopy
-PIL (Pillow)
+- matplotlib
+- numpy
+- pandas
+- scipy
+- cartopy
+- PIL (Pillow)
