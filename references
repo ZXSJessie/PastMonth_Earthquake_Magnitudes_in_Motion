@@ -4,7 +4,8 @@ https://stackoverflow.com/questions/40920397/griddata-qh6214-qhull-input-error-n
 https://www.geeksforgeeks.org/python/matplotlib-animation-funcanimation-class-in-python/
 https://matplotlib.org/stable/api/_as_gen/matplotlib.animation.FuncAnimation.html
 https://stackoverflow.com/questions/66028559/how-to-interpolate-data-by-latitudes-and-longitudes # cubic
-https://matplotlib.org/stable/api/pyplot_summary.html #contourf
+https://matplotlib.org/stable/api/pyplot_summary.html # contourf
+https://stackoverflow.com/questions/37478460/add-background-image-to-3d-plot # map addition guide
 
 Earthquake dataset:
 https://earthquake.usgs.gov/earthquakes/feed/v1.0/csv.php

@@ -1,8 +1,9 @@
 matplotlib
-mpl_toolkits.mplot3d
+mpl_toolkits
 PIL
 pandas
 numpy
 scipy
-plotyly.graph_objectspip
+plotyly
 cartopy
+skimage
